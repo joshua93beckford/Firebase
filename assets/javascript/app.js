@@ -14,7 +14,7 @@ setTrains();
 
 $('body').on('click', '#submit', function (event) {
 
-    var train, destination, time, frequency;
+    var train, destination, time, frequency, time_arr, mins_aw;
 
     event.preventDefault();
 
@@ -22,48 +22,51 @@ $('body').on('click', '#submit', function (event) {
     destination = $('#destination').val().trim();
     time = $('#time').val().trim();
     frequency = $('#frequency').val().trim();
+    time_arr = moment(time, 'HH:mm').format('hh:mm a');
 
-    if (!train || !destination || !time || !frequency) {
+    var year = moment().get('year');
+    var month = moment().get('month');
+    var hour = "" + time.charAt(0) + "" + time.charAt(1);
+    var minute = "" + time.charAt(3) + "" + time.charAt(4);
+    var tt = moment().set({ 'year': year, 'month': month, 'hour': hour, 'minute': minute });
+    mins_aw = parseInt(moment(tt).diff(moment()) / 60000);
+
+    if (!train || !destination || !time || !frequency || !time_arr) {
 
     }
-    else{
-        
+    else {
+
         trains.push({
 
             train: train,
             destination: destination,
             time: time,
-            frequency: frequency
-
+            frequency: frequency,
+            arrival: time_arr,
+            away: mins_aw
         });
     }
 });
 
-trains.on("child_added", function(data, prevChildKey) {
+trains.on("child_added", function (data, prevChildKey) {
 
     setTrains();
 
 });
 
-function setTrains(){
+function setTrains() {
 
     trains.on("value", function (snapshot) {
-    
-        console.log(snapshot.val());
+
         $('#post-content').empty();
         snapshot.forEach(element => {
-    
-            var val = element.val();
-    
-            console.log(val);
 
-            $('#post-content').append('<tr><td>' + val.train + '</td><td>' + val.destination + '</td><td>' + val.frequency + '</td></tr>');
-    
-    
+            var val = element.val();
+
+            $('#post-content').append('<tr><td>' + val.train + '</td><td>' + val.destination + '</td><td>' + val.frequency + '</td><td>' + val.arrival + '</td><td>' + val.away + '</td></tr>');
         });
-    
-     }, function (error) {
+
+    }, function (error) {
         console.log("Error: " + error.code);
-     });
-    }
-    
+    });
+}
